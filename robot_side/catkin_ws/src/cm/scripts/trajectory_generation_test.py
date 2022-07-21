@@ -147,9 +147,9 @@ def generate_n_trajs(n_trajs, number_of_motives_in_traj):
     all_trajectories = []
     all_durations = []
     # Do a loop to generate trajectory by trajectory.
-    for i in range(number_of_trajs):
+    for i in range(n_trajs):
         # Generate a single trajectory.
-        trajectories,durations_lists = generate_and_get_matrices(number_of_movements)
+        trajectories,durations_lists = generate_and_get_matrices(number_of_motives_in_traj)
         all_trajectories.append(trajectories)
         all_durations.append(durations_lists)       
               

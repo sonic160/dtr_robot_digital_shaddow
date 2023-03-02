@@ -93,8 +93,18 @@ class SteadyStateErrorSimulator(FailureSimulator):
         - failed_target: The new target value of the motor after injecting failure.
         - failed_duration: The new duration of the motor after injecting failure.
         '''
-        print(self.error_factor)
-        failed_target = target +int((target-500)*self.error_factor)
+        # print(self.error_factor)
+        
+        # Extract lower and upper limits of the errors.
+        ll = self.error_factor[0]
+        ul = self.error_factor[1]
+        
+        # Generate error.
+        error = random.randint(ll, ul)
+        if random.random()<.5:
+            error = -1*error        
+        
+        failed_target = target + error
         failed_duration = duration
 
         return failed_target, failed_duration
@@ -169,7 +179,7 @@ class ControlMotor:
         '''
         # Check if the io is blocked:
         while self.io_block_flag[0]:
-            print('Thread_Control: Waiting for the IO to be released!')
+            print(f'Thread_Control: Waiting for the IO to be released! Motor{monitored_motor}')
             pass
 
         # Block the IO and perform the reading action.
@@ -179,7 +189,6 @@ class ControlMotor:
             Board.setBusServoPulse(monitored_motor, target_value, duration)
         # Release the IO
         self.io_block_flag[0] = False
-
 
     def send_and_pub_control_signal(self, trajectory: list, duration_list: list):       
         # Log the current time.
@@ -221,8 +230,41 @@ if __name__ == '__main__':
     number_of_runs = 2
     number_of_movement_per_traj = 5    
     trajectories, durations_lists = generate_n_trajs(number_of_runs, number_of_movement_per_traj)
+    
+    # Define failure label:
+    # 0: No failure
+    # 1-4: Motor 6-3 stucks
+    # 5-8: Motor 6-3 steady-state error
+    failure_label = 0
+
+    # Default value for failure_simulator.
+    # When no failure or stuck failure, set to None.
+    # For stuck failure, we collect original response, and inject failure during postprocessing.
     failure_simulator = None
- 
+    
+    # Simulate a steady-state error.
+    if failure_label > 4 & failure_label < 9:
+        # Define failure generators.
+        error_range = [5, 20]
+        
+        # Calculate failed motor.
+        failed_motor_idx = 11-failure_label
+        
+        # All the trajectories are failed.
+        total_rows = number_of_runs*(number_of_movement_per_traj + 2)
+        failed_trajectories = np.arange(0, total_rows).tolist()
+        
+        # In each trajectory, only failed_motor_idx motor failed.
+        failed_motor_idx = [[failed_motor_idx]] * total_rows
+        
+        failure_simulators = []
+        for i in range(total_rows):
+            failure_simulators.append(SteadyStateErrorSimulator(error_factor=error_range))
+            
+        failure_simulator = FailureSimulator(trajectory_idxes=failed_trajectories,
+                                             motor_idxes=failed_motor_idx,
+                                             failure_simulators=failure_simulators)
+    # failure_simulator = None
     
     # failed_trajectories = np.arange(1, total_rows + 1)
     

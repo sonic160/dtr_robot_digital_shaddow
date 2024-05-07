@@ -161,7 +161,7 @@ include_directories(
 # Mark executable scripts (Python etc.) for installation
 # in contrast to setup.py, you can choose the destination
 catkin_install_python(PROGRAMS
-   scripts/cm_listener.py scripts/cm_listener_websocket.py scripts/cm_listen_position.py scripts/cm_listen_trajectory.py
+   scripts/cm_listener_test.py scripts/cm_listener_websocket.py scripts/cm_listen_position.py scripts/cm_listen_trajectory.py
    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

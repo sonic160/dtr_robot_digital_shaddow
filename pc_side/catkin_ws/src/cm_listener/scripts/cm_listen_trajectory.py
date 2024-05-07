@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from condition_monitoring.msg import msg_cm as RosJointState
+from cm_listener.msg import msg_cm as RosJointState
 import pandas as pd
 # import matplotlib.pyplot as plt
 import os

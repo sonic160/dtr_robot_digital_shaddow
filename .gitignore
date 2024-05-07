@@ -6,4 +6,4 @@
 **/catkin_ws/devel/
 
 # python configuration and cached files.
-**/__pycache__
+**/__pycache__/

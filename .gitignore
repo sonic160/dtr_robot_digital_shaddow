@@ -4,3 +4,6 @@
 **/.catkin_workspace
 **/catkin_ws/build/
 **/catkin_ws/devel/
+
+# python configuration and cached files.
+**/__pycache__

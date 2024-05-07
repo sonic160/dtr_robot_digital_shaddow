@@ -1,0 +1,2 @@
+cm_listener
+-DCATKIN_DEVEL_PREFIX=/home/zhiguo/github_repo/dtr_robot_digital_shaddow/pc_side/catkin_ws/devel -DCMAKE_INSTALL_PREFIX=/home/zhiguo/github_repo/dtr_robot_digital_shaddow/pc_side/catkin_ws/install -G Unix Makefiles

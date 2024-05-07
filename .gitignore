@@ -2,5 +2,5 @@
 **/.vscode
 **/.catkin_tools/
 **/.catkin_workspace
-pc_side/catkin_ws/build/
-pc_side/catkin_ws/devel/
+**/catkin_ws/build/
+**/catkin_ws/devel/

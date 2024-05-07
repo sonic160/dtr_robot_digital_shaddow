@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 # Might need to change to cm.msg, depending on the package name.
-from condition_monitoring.msg import msg_cm as RosJointState
+from cm_listener.msg import msg_cm as RosJointState
 import pandas as pd
 # import matplotlib.pyplot as plt
 import os
@@ -59,15 +59,14 @@ class DataCollector:
         '''        
         base_path = self.base_path
         # Check if the folder exists, if not, create it
-        folder_name = base_path + 'motor_position_test_data/'
-        if not os.path.exists(folder_name):
-            os.makedirs(folder_name)
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
 
         # Create a subfolder with the current time as the folder name
         current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
         file_name = current_time + '_' + self.motor + '.csv'
         
-        return folder_name, file_name
+        return base_path, file_name
     
 
     def save_data_to_dataframe(self):
@@ -99,7 +98,7 @@ class DataCollector:
 
 if __name__ == '__main__':
     # Specify the base path for saving the data.
-    base_path = '/home/zhiguo/github_repo/digital_twin_robot/robot_digital_twin/condition_monitoring_python_ros/'
+    base_path = '/home/zhiguo/github_repo/dtr_robot_digital_shaddow/pc_side/collected_data/motor_position_test_data/robot_b/'
     data_collector = DataCollector(base_path=base_path)
     data_collector.run()
     data_collector.save_data_to_dataframe()

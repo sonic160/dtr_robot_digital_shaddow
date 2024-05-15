@@ -95,6 +95,32 @@ class SteadyStateErrorSimulator(FailureSimulator):
         return failed_target, failed_duration
     
 
+class SpeedDegradationSimulator(FailureSimulator):
+    ''' ### Description
+    This class defines a simulator for the degradation of rotation speed failure mode. It is inherited from FailureSimulator.    
+    '''
+    def __init__(self, percentage_loss: float=.2):
+        super().__init__()
+        self.percentage_loss = percentage_loss
+    
+    def simulate_failure(self, target: int=0, duration: int=1000) -> tuple:
+        ''' ### Description
+        This function simulates the degradation of rotation speed. It sets the duration to the original duration multiplied by the 1 + percentage loss.
+        
+        ### Parameters 
+        - target: The original target value of the motor.
+        - duration: The original duration of the motor.
+
+        ### Returns
+        - failed_target: The new target value of the motor after injecting failure.
+        - failed_duration: The new duration of the motor after injecting failure.
+        '''
+        failed_target = target
+        failed_duration = duration*(1+self.percentage_loss)
+
+        return failed_target, failed_duration
+    
+
 def node_control_robot(node, io_block_flag: list, 
                        trajectories: list=[[500, 500, 500, 500, 500, 500]], 
                        durations_lists: list=[[1000, 1000, 1000, 1000, 1000, 1000]],
@@ -205,16 +231,17 @@ if __name__ == '__main__':
                        [1000, 1000, 1000, 1000, 1000, 1000]]
     
     # Define failures.
-    failed_trajectories = [1, 5] # The second and sixth row in trajectories.
-    failed_motors = [[1, 5], [6]] # For the first row, motor 1 and 5 fail. For the sixth, motor 6 fails.
+    failed_trajectories = [1, 5, 8] # The second and sixth row in trajectories.
+    failed_motors = [[1, 5], [6], [1]] # For the first row, motor 1 and 5 fail. For the sixth, motor 6 fails.
     
     # Define the failure simulators.
     # Motor 1 in trajectory 1: Stuck.
     # Motor 5 in trajectory 1: Steady state error with error factor 10.
     # Motor 6 in trajectory 5: Steady state error with error factor 100.
     failure_simulators = [StuckSimulator(), 
-                          SteadyStateErrorSimulator(error_factor=10), 
-                          SteadyStateErrorSimulator(error_factor=-20)]
+                          SteadyStateErrorSimulator(error_factor=30), 
+                          SteadyStateErrorSimulator(error_factor=-20),
+                          SpeedDegradationSimulator(percentage_loss=.5)]
     failure_simulator = FailureSimulator(trajectory_idxes=failed_trajectories,
                                          motor_idxes=failed_motors,
                                          failure_simulators=failure_simulators)

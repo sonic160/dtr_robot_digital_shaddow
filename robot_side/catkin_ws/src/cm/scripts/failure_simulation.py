@@ -241,7 +241,7 @@ if __name__ == '__main__':
     failure_simulators = [StuckSimulator(), 
                           SteadyStateErrorSimulator(error_factor=30), 
                           SteadyStateErrorSimulator(error_factor=-20),
-                          SpeedDegradationSimulator(percentage_loss=.5)]
+                          SpeedDegradationSimulator(percentage_loss=1)]
     failure_simulator = FailureSimulator(trajectory_idxes=failed_trajectories,
                                          motor_idxes=failed_motors,
                                          failure_simulators=failure_simulators)

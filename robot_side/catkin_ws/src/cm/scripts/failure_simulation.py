@@ -213,7 +213,7 @@ if __name__ == '__main__':
     # Motor 5 in trajectory 1: Steady state error with error factor 10.
     # Motor 6 in trajectory 5: Steady state error with error factor 100.
     failure_simulators = [StuckSimulator(), 
-                          SteadyStateErrorSimulator(error_factor=10), 
+                          SteadyStateErrorSimulator(error_factor=30), 
                           SteadyStateErrorSimulator(error_factor=-20)]
     failure_simulator = FailureSimulator(trajectory_idxes=failed_trajectories,
                                          motor_idxes=failed_motors,

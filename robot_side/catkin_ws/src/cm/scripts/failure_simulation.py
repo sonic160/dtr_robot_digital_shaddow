@@ -240,12 +240,8 @@ if __name__ == '__main__':
     # Motor 6 in trajectory 5: Steady state error with error factor 100.
     failure_simulators = [StuckSimulator(), 
                           SteadyStateErrorSimulator(error_factor=30), 
-<<<<<<< HEAD
-                          SteadyStateErrorSimulator(error_factor=-20)]
-=======
                           SteadyStateErrorSimulator(error_factor=-20),
-                          SpeedDegradationSimulator(percentage_loss=.5)]
->>>>>>> 1fe6f80ea7dba84c92d5eb32698e9f9a438b14e9
+                          SpeedDegradationSimulator(percentage_loss=1)]
     failure_simulator = FailureSimulator(trajectory_idxes=failed_trajectories,
                                          motor_idxes=failed_motors,
                                          failure_simulators=failure_simulators)

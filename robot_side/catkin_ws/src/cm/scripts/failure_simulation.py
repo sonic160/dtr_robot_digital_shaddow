@@ -110,10 +110,10 @@ def node_control_robot(node, io_block_flag: list,
             robot_controller.send_and_pub_control_signal(trajectory, duration_list)
     else:
         for idx_trajectory in range(len(trajectories)):
-            if idx_trajectory in failure_simulator.trajectory_indexes:
-                failure_simulator.current_trajectory_need_sim = True
+            if idx_trajectory in robot_controller.failure_simulator.trajectory_indexes:
+                robot_controller.failure_simulator.current_trajectory_need_sim = True
             else:
-                failure_simulator.current_trajectory_need_sim = False
+                robot_controller.failure_simulator.current_trajectory_need_sim = False
         
             trajectory, duration_list = trajectories[idx_trajectory], durations_lists[idx_trajectory]
             robot_controller.send_and_pub_control_signal(trajectory, duration_list)

@@ -19,7 +19,7 @@ class FailureSimulator:
         self.motor_indexes = motor_idxes
         self.failure_simulators = failure_simulators
         self.current_simulator_idx = 0
-        self.current_trajectory_need_sim = False
+        self.current_trajectory = 0
 
 
     def simulate_failure(self, target: int=0, duration: int=1000):
@@ -110,11 +110,7 @@ def node_control_robot(node, io_block_flag: list,
             robot_controller.send_and_pub_control_signal(trajectory, duration_list)
     else:
         for idx_trajectory in range(len(trajectories)):
-            if idx_trajectory in robot_controller.failure_simulator.trajectory_indexes:
-                robot_controller.failure_simulator.current_trajectory_need_sim = True
-            else:
-                robot_controller.failure_simulator.current_trajectory_need_sim = False
-        
+            robot_controller.failure_simulator.current_trajectory = idx_trajectory
             trajectory, duration_list = trajectories[idx_trajectory], durations_lists[idx_trajectory]
             robot_controller.send_and_pub_control_signal(trajectory, duration_list)
     
@@ -167,8 +163,11 @@ class ControlMotor:
 
             # If need to simulate failure:
             if self.failure_simulator is not None:
-                if self.failure_simulator.current_trajectory_need_sim and monitored_motor in self.failure_simulator.motor_indexes:
-                    target_value, duration = self.failure_simulator.simulate_failure(target_value, duration)
+                if self.failure_simulator.current_trajectory in self.failure_simulator.trajectory_indexes:
+                    # Get the index of the current trajectory in trajectory_indexes list.
+                    idx_trajectory = self.failure_simulator.trajectory_indexes.index(self.failure_simulator.current_trajectory)
+                    if monitored_motor in self.failure_simulator.motor_indexes[idx_trajectory]:
+                        target_value, duration = self.failure_simulator.simulate_failure(target_value, duration)
             
             # Publish the command.
             self.safe_control_motor(target_value, duration, monitored_motor)            

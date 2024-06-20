@@ -231,7 +231,7 @@ if __name__ == '__main__':
                        [1000, 1000, 1000, 1000, 1000, 1000]]
     
     # Define failures.
-    failed_trajectories = [1, 5, 8] # The second and sixth row in trajectories.
+    failed_trajectories = [1, 5, 7] # The second and sixth row in trajectories.
     failed_motors = [[1, 5], [6], [1]] # For the first row, motor 1 and 5 fail. For the sixth, motor 6 fails.
     
     # Define the failure simulators.

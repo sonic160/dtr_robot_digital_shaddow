@@ -8,3 +8,6 @@
 # python configuration and cached files.
 **/__pycache__/
 **/.pyc
+
+# ignore csv files
+**/*.csv

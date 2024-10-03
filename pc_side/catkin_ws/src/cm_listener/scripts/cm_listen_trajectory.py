@@ -160,7 +160,7 @@ class DataCollector:
 
 if __name__ == '__main__':
     # Specify the base path for saving the data.
-    base_path = '/home/zhiguo/github_repo/dtr_robot_digital_shaddow/pc_side/collected_data/trajectory_test_data/robot_b'
+    base_path = '/home/zhiguo/github_repo/dtr_robot_digital_shaddow/pc_side/collected_data/failure_simulation_data/robot_b'
     # Initialize the data collector.
     data_collector = DataCollector(base_path=base_path)
     # Receiving the collected data.

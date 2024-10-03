@@ -11,3 +11,4 @@
 
 # ignore csv files
 **/*.csv
+collected_data/

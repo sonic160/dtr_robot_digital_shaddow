@@ -227,7 +227,7 @@ if __name__ == '__main__':
     # This is a test script for simulating failures on motors by software.
     
     # Generate n trajectories.
-    number_of_runs = 2
+    number_of_runs = 10
     number_of_movement_per_traj = 5    
     trajectories, durations_lists = generate_n_trajs(number_of_runs, number_of_movement_per_traj)
     
@@ -235,7 +235,7 @@ if __name__ == '__main__':
     # 0: No failure
     # 1-4: Motor 6-3 stucks
     # 5-8: Motor 6-3 steady-state error
-    failure_label = 0
+    failure_label = 8
 
     # Default value for failure_simulator.
     # When no failure or stuck failure, set to None.

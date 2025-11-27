@@ -12,6 +12,7 @@ from trajectory_generation_test import generate_n_trajs
 import sys
 import random
 import numpy as np
+import argparse
 
 
 class FailureSimulator:
@@ -145,15 +146,29 @@ def node_control_robot(node, io_block_flag: list,
     # Sleep for 5 seconds. Time needed to start the listener on the PC side.
     time.sleep(5)    
 
+    current_idx = 0
+    print_interval = 7
+    n_runs = len(trajectories)//print_interval
+    
     if robot_controller.failure_simulator is None:
         # Loop over the trajectories. Send the control signals.
         for trajectory, duration_list in zip(trajectories, durations_lists):
             robot_controller.send_and_pub_control_signal(trajectory, duration_list)
+            
+            current_idx += 1
+            if current_idx % print_interval == 1:
+                print(f'Running {current_idx//print_interval+1}/{n_runs} simulations.')
     else:
         for idx_trajectory in range(len(trajectories)):
             robot_controller.failure_simulator.current_trajectory = idx_trajectory
             trajectory, duration_list = trajectories[idx_trajectory], durations_lists[idx_trajectory]
             robot_controller.send_and_pub_control_signal(trajectory, duration_list)
+            
+            current_idx += 1
+            if current_idx % print_interval == 1:
+                print(f'Running {current_idx//print_interval+1}/{n_runs} simulations.')
+    
+    print('Simulation finishes! Please stop the monitoring program on the PC side first, then stop this program.')
     
 
 class ControlMotor:
@@ -170,7 +185,7 @@ class ControlMotor:
         self.msg.temperature = [0, 0, 0, 0, 0, 0]
         self.msg.voltage = [0]
 
-        self.monitor_pos_pub = rospy.Publisher('/position_monitoring', RosJointState)
+        self.monitor_pos_pub = rospy.Publisher('/position_monitoring', RosJointState, queue_size=50)
 
 
     def safe_control_motor(self, target_value: int, duration: int, monitored_motor: int):
@@ -179,7 +194,8 @@ class ControlMotor:
         '''
         # Check if the io is blocked:
         while self.io_block_flag[0]:
-            print(f'Thread_Control: Waiting for the IO to be released! Motor{monitored_motor}')
+            # print(f'Thread_Control: Waiting for the IO to be released! Motor{monitored_motor}')
+            time.sleep(.001)
             pass
 
         # Block the IO and perform the reading action.
@@ -219,23 +235,35 @@ class ControlMotor:
         self.msg.position = trajectory
         self.msg.temperature = duration_list
         self.monitor_pos_pub.publish(self.msg)
-        # Log the information.
-        rospy.loginfo('Publish control command: Position target: {}, Duration: {}ms'.format(self.msg.position, self.msg.temperature))       
+        ## Log the information.
+        # rospy.loginfo('Publish control command: Position target: {}, Duration: {}ms'.format(self.msg.position, self.msg.temperature))       
 
 
 if __name__ == '__main__':
     # This is a test script for simulating failures on motors by software.
+        
+    # Create an ArgumentParser object
+    parser = argparse.ArgumentParser(description='Input parameter values through command-line.')
+
+    # Add arguments
+    parser.add_argument('-number_of_runs', '--number_of_runs', type=int, default=1)
+    parser.add_argument('-number_of_movement_per_traj', '--number_of_movement_per_traj', type=int, default=5)
+    parser.add_argument('-failure_label', '--failure_label', type=int, default=0)
+
+    # Parse the command-line arguments
+    args = parser.parse_args()
     
     # Generate n trajectories.
-    number_of_runs = 10
-    number_of_movement_per_traj = 5    
+    # Access the values using args.
+    number_of_runs = args.number_of_runs
+    number_of_movement_per_traj = args.number_of_movement_per_traj    
     trajectories, durations_lists = generate_n_trajs(number_of_runs, number_of_movement_per_traj)
     
     # Define failure label:
     # 0: No failure
     # 1-4: Motor 6-3 stucks
     # 5-8: Motor 6-3 steady-state error
-    failure_label = 8
+    failure_label = args.failure_label
 
     # Default value for failure_simulator.
     # When no failure or stuck failure, set to None.
@@ -245,7 +273,7 @@ if __name__ == '__main__':
     # Simulate a steady-state error.
     if failure_label > 4 & failure_label < 9:
         # Define failure generators.
-        error_range = [5, 20]
+        error_range = [10, 50]
         
         # Calculate failed motor.
         failed_motor_idx = 11-failure_label
@@ -264,41 +292,7 @@ if __name__ == '__main__':
         failure_simulator = FailureSimulator(trajectory_idxes=failed_trajectories,
                                              motor_idxes=failed_motor_idx,
                                              failure_simulators=failure_simulators)
-    # failure_simulator = None
     
-    # failed_trajectories = np.arange(1, total_rows + 1)
-    
-    # pattern = [1,6,5,4,3]
-    # pattern_length = len(pattern)
-    
-    
-    
-    # for i in range(0, total_rows,  number_of_movement_per_traj):
-    #     value = pattern[(i // number_of_movement_per_traj) % pattern_length]
-       
-        
-    # mult_pattern = [1,1,1,1,1,1,1,6,6,6,6,6,1,1,5,5,5,5,5,1,1,4,4,4,4,4,1,1,3,3,3,3,3,1,1] 
-    # failed_trajectories = failed_trajectories.tolist()
-    # print("failed_trajectories", failed_trajectories)
-    # failed_motors= [[motor_number] for motor_number in mult_pattern] * int(total_rows/7)
-    # print("failed_motors", failed_motors)
-    
-    # failure_simulators = []
-    # for _ in range(int(total_rows/7)):
-    #     a = random.uniform(0.15, 0.35) * random.choice([-1,1])
-    #     failure_simulators.append(SteadyStateErrorSimulator(error_factor=a))
-    #     failure_simulators.append(SteadyStateErrorSimulator(error_factor=a))
-    #     failure_simulators.append(SteadyStateErrorSimulator(error_factor=a))
-    #     failure_simulators.append(SteadyStateErrorSimulator(error_factor=a))
-    #     failure_simulators.append(SteadyStateErrorSimulator(error_factor=a))
-    #     failure_simulators.append(SteadyStateErrorSimulator(error_factor=a))
-    #     failure_simulators.append(SteadyStateErrorSimulator(error_factor=a))
-    
-    # failure_simulator = FailureSimulator(trajectory_idxes=failed_trajectories,
-    #                                      motor_idxes=failed_motors,
-    #                                      failure_simulators=failure_simulators)
-    # print("failure_simulators", failure_simulators)
-
     # Define the io block flag.
     io_block_flag = [False]
 
